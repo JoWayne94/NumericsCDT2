@@ -471,13 +471,16 @@ def plot_vel_field(nodes, boundary_nodes, towns, town_names, u, v, title, m_styl
         plt.plot(towns_x[t], towns_y[t], m_styles[t], lw=lw, ms=ms, label=town_names[t])
     plt.plot(x[boundary_nodes], y[boundary_nodes], 'k-', lw=lw)
 
-    plt.quiver(x, y, u, v, angles='xy', scale_units='xy', scale=10000, color='k')
+    plt.quiver(x[::4], y[::4], u[::4], v[::4], angles='xy', scale_units='xy', scale=10000, color='k')
     plt.title(title, usetex=True)
     plt.xlabel(r"x-coordinate [$10^6$ m]", usetex=True)
     plt.ylabel(r"y-coordinate [$10^6$ m]", usetex=True)
     # plt.legend(loc='upper left')
     plt.axis("equal")
     plt.grid(True)
+
+    # plt.savefig(f'{sys.path[-1]}/report/figures/{title}.eps', dpi=1000)
+
     if show:
         plt.show()
     else:

@@ -270,7 +270,7 @@ if __name__ == '__main__':
                 lm[a, e] = ID[IEN[e, a]]
 
         boundary_map = np.append(boundary_nodes, boundary_nodes[0])
-        plot_uk_map(nodes, boundary_map, towns, town_names, line_styles, ms, lw, False)
+        # plot_uk_map(nodes, boundary_map, towns, town_names, line_styles, ms, lw, False)
         # plot_uk_mesh(nodes, dirichlet_boundary, IEN, lw)
 
     else:
