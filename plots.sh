@@ -9,3 +9,4 @@ cd ADR2d/soton_fire
 python steadyADR2d.py
 python ADR2d.py
 python ADR2d_2.py
+python velocity_field.py

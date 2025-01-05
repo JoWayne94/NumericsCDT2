@@ -280,7 +280,7 @@ if __name__ == '__main__':
 
     files = [sys.path[-1] + f'/data/{i}/data.csv' for i in town_names]
     # Load and align wind data from CSV files
-    data, all_t = load_and_align_data(files, common_time_interval="10min")
+    data, all_t = load_and_align_data(files, common_time_interval="20min")
 
     # Define the time range
     t_int = 60. * 30.
@@ -289,44 +289,49 @@ if __name__ == '__main__':
     query_times = [start_time + timedelta(seconds=t_int * i) for i in
                    range(int((end_time - start_time).total_seconds() / t_int) + 1)]
 
-    # Extract the x and y coordinates of the nodes
-    x = nodes[:, 0] / 10000000.
-    y = nodes[:, 1] / 10000000.
+    qt = datetime.strptime("11:30:00", "%H:%M:%S")
 
-    towns_x = towns[:, 0] / 10000000.
-    towns_y = towns[:, 1] / 10000000.
+    # Interpolate wind speed and direction at the current time step
+    wind_speed, wind_direction = interpolate_wind_space_time(data, all_t, towns, nodes, qt)
+    # Convert wind direction (degrees) to vector components
+    u = wind_speed * np.cos(np.radians(270. - wind_direction))  # x-component
+    v = wind_speed * np.sin(np.radians(270. - wind_direction))  # y-component
 
-    n = 0
-    create_gif = True
+    title = f"Wind directions at {qt.strftime('%H:%M:%S')}"
 
-    # Directory to save frames
-    frame_dir = 'frames_vel'
-    os.makedirs(frame_dir, exist_ok=True)
-    # Initialize empty list to store frame filenames
-    frame_files = []
+    plot_vel_field(nodes, boundary_map, towns, town_names, u, v, title, line_styles, ms, lw, show=True)
 
-    # Loop over query times and create quiver plots
-    for qt in query_times:
-        # Interpolate wind speed and direction at the current time step
-        wind_speed, wind_direction = interpolate_wind_space_time(data, all_t, towns, nodes, qt)
-        # Convert wind direction (degrees) to vector components
-        u = wind_speed * np.cos(np.radians(270. - wind_direction))  # x-component
-        v = wind_speed * np.sin(np.radians(270. - wind_direction))  # y-component
-
-        title = f"Wind directions at {qt.strftime('%H:%M:%S')}"
-
-        plot_vel_transient(nodes, boundary_map, towns, town_names, u, v, title, line_styles, ms, lw,
-                           frame_dir, frame_files, n, gif=create_gif)
-
-        n += 1
-
-    # Create the GIF
-    if create_gif:
-        with imageio.get_writer(f'vel_field.gif', mode='I', duration=0.01) as writer:
-            for filename in frame_files:
-                image = imageio.imread(filename)
-                writer.append_data(image)
-
-        # Optional: Clean up the frame files after GIF creation
-        for filename in frame_files:
-            os.remove(filename)
+    # n = 0
+    # create_gif = True
+    #
+    # # Directory to save frames
+    # frame_dir = 'frames_vel'
+    # os.makedirs(frame_dir, exist_ok=True)
+    # # Initialize empty list to store frame filenames
+    # frame_files = []
+    #
+    # # Loop over query times and create quiver plots
+    # for qt in query_times:
+    #     # Interpolate wind speed and direction at the current time step
+    #     wind_speed, wind_direction = interpolate_wind_space_time(data, all_t, towns, nodes, qt)
+    #     # Convert wind direction (degrees) to vector components
+    #     u = wind_speed * np.cos(np.radians(270. - wind_direction))  # x-component
+    #     v = wind_speed * np.sin(np.radians(270. - wind_direction))  # y-component
+    #
+    #     title = f"Wind directions at {qt.strftime('%H:%M:%S')}"
+    #
+    #     plot_vel_transient(nodes, boundary_map, towns, town_names, u, v, title, line_styles, ms, lw,
+    #                        frame_dir, frame_files, n, gif=create_gif)
+    #
+    #     n += 1
+    #
+    # # Create the GIF
+    # if create_gif:
+    #     with imageio.get_writer(f'vel_field.gif', mode='I', duration=0.01) as writer:
+    #         for filename in frame_files:
+    #             image = imageio.imread(filename)
+    #             writer.append_data(image)
+    #
+    #     # Optional: Clean up the frame files after GIF creation
+    #     for filename in frame_files:
+    #         os.remove(filename)
